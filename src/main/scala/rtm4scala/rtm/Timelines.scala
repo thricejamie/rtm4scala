@@ -5,6 +5,8 @@ import collection.SortedMap
 
 object Timelines {
 
-	def create(rtm:RtmApi, authToken: String) =
-		rtm.makeRequest("rtm.timelines.create", SortedMap("auth_token" -> authToken))
+	def create(rtm:RtmApi, authToken: String): Option[Int] =
+		rtm.makeRequest("rtm.timelines.create", SortedMap("auth_token" -> authToken)) {
+			result => Some((result \\ "timeline").text.toInt)
+		}
 }
