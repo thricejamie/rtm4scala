@@ -21,17 +21,18 @@ package rtm4scala.rtm
 
 import rtm4scala.api._
 import collection.SortedMap
+import net.liftweb.common._
 
 private[rtm4scala] class Test(override val rtm:RtmApi) extends ApiCall(rtm) {
 
-	def echo(echoValues: (String, String)*): Option[Map[String,String]] =
+	def echo(echoValues: (String, String)*): Box[Map[String,String]] =
 		rtm.makeRequest("rtm.test.echo", SortedMap.empty[String,Object] ++ echoValues) {
-			result => Some(result.map(x => (x.label, x.text)).toMap)
+			result => Full(result.map(x => (x.label, x.text)).toMap)
 		}
 	
-	def login(authToken: String): Option[TestLogin] = 
+	def login(authToken: String): Box[TestLogin] = 
 		rtm.makeRequest("rtm.test.login", SortedMap("auth_token" -> authToken)) {
-			result => Some(TestLogin((result \ "username").text))
+			result => Full(TestLogin((result \ "username").text))
 		}
 }
 

@@ -21,6 +21,7 @@ package rtm4scala.rtm
 
 import rtm4scala.api._
 import collection.SortedMap
+import net.liftweb.common._
 
 private[rtm4scala] class Tasks(override val rtm:RtmApi) extends ApiCall(rtm) {
 
@@ -28,14 +29,14 @@ private[rtm4scala] class Tasks(override val rtm:RtmApi) extends ApiCall(rtm) {
 			timeline: String, 
 			listId: String, 
 			name: String, 
-			parse: String): Option[Task] = {
+			parse: String): Box[Task] = {
 				rtm.makeRequest("rtm.tasks.add", 
 					SortedMap("auth_token" -> authToken, 
 						"timeline" -> timeline, 
 						"list_id" -> listId, 
 						"name" -> name,
 						"parse" -> parse)) {
-					result => Some(Task((result \\ "list" \\ "taskseries" \\ "task" \ "@id").text,
+					result => Full(Task((result \\ "list" \\ "taskseries" \\ "task" \ "@id").text,
 																							(result \\ "list" \ "@id").text,
 																							(result \\ "list" \\ "taskseries" \ "@id").text,
 																							(result \\ "list" \\ "taskseries" \ "@name").text,
@@ -55,13 +56,13 @@ private[rtm4scala] class Tasks(override val rtm:RtmApi) extends ApiCall(rtm) {
 	def getList(authToken: String, 
 						listId: String, 
 						filter: String, 
-						lastSync: String): Option[List[Task]] = {
+						lastSync: String): Box[List[Task]] = {
 							rtm.makeRequest("rtm.tasks.getList", 
 								SortedMap("auth_token" -> authToken, 
 									"list_id" -> listId, 
 									"filter" -> filter,
 									"last_sync" -> lastSync)) {
-								result => println(result);None
+								result => println(result);Empty
 							}
 						}			
 }

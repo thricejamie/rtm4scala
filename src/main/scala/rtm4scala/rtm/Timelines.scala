@@ -21,11 +21,12 @@ package rtm4scala.rtm
 
 import rtm4scala.api._
 import collection.SortedMap
+import net.liftweb.common._
 
 private[rtm4scala] class Timelines(override val rtm:RtmApi) extends ApiCall(rtm) {
 
-	def create(authToken: String): Option[String] =
+	def create(authToken: String): Box[String] =
 		rtm.makeRequest("rtm.timelines.create", SortedMap("auth_token" -> authToken)) {
-			result => Some((result \\ "timeline").text)
+			result => Full((result \\ "timeline").text)
 		}
 }

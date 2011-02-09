@@ -33,17 +33,17 @@ class RtmApi(val apiKey: String, val apiSecret: String) extends Logger {
     def apply(method: String) = SortedMap("api_key" -> apiKey, "method" -> method)
   }
 	
-	def makeRequest[T](method: String, values: SortedMap[String, Object])(block: Seq[xml.Elem] => Option[T]): Option[T] =
+	def makeRequest[T](method: String, values: SortedMap[String, Object])(block: Seq[xml.Elem] => Box[T]): Box[T] =
 		get(sign(params(method) ++ values.filter({
 				element => 
 					val(key, value) = element
 					value != null
 			})))(block)
 	
-	def get[T](query: SortedMap[String,Any])(block: Seq[xml.Elem] => Option[T]): Option[T] =
+	def get[T](query: SortedMap[String,Any])(block: Seq[xml.Elem] => Box[T]): Box[T] =
 		http(endpoint <<? query <> {rsp => handleResponse(rsp)(block)})
 	
-	def handleResponse[T](rsp: xml.Elem)(block: Seq[xml.Elem] => Option[T]): Option[T] = rsp match {
+	def handleResponse[T](rsp: xml.Elem)(block: Seq[xml.Elem] => Box[T]): Box[T] = rsp match {
     case rsp if (rsp \ "@stat").text == "ok" =>
       block(rsp.child.collect{case x: xml.Elem => x})
     case rsp if (rsp \ "@stat").text == "fail" =>
