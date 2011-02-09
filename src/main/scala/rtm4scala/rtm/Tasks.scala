@@ -22,10 +22,9 @@ package rtm4scala.rtm
 import rtm4scala.api._
 import collection.SortedMap
 
-object Tasks {
+private[rtm4scala] class Tasks(override val rtm:RtmApi) extends ApiCall(rtm) {
 
-	def add(rtm: RtmApi, 
-			authToken: String, 
+	def add(authToken: String, 
 			timeline: String, 
 			listId: String, 
 			name: String, 
@@ -36,7 +35,7 @@ object Tasks {
 						"list_id" -> listId, 
 						"name" -> name,
 						"parse" -> parse)) {
-					result => println(result);Some(Task((result \\ "list" \\ "taskseries" \\ "task" \ "@id").text,
+					result => Some(Task((result \\ "list" \\ "taskseries" \\ "task" \ "@id").text,
 																							(result \\ "list" \ "@id").text,
 																							(result \\ "list" \\ "taskseries" \ "@id").text,
 																							(result \\ "list" \\ "taskseries" \ "@name").text,
@@ -51,7 +50,20 @@ object Tasks {
 																							(result \\ "list" \\ "taskseries" \\ "task" \ "@postponed").text,
 																							(result \\ "list" \\ "taskseries" \\ "task" \ "@estimate").text))
 				}
-			}			
+			}
+			
+	def getList(authToken: String, 
+						listId: String, 
+						filter: String, 
+						lastSync: String): Option[List[Task]] = {
+							rtm.makeRequest("rtm.tasks.getList", 
+								SortedMap("auth_token" -> authToken, 
+									"list_id" -> listId, 
+									"filter" -> filter,
+									"last_sync" -> lastSync)) {
+								result => println(result);None
+							}
+						}			
 }
 
 case class Task(id: String, listId: String, taskseriesId: String, name:String, 
