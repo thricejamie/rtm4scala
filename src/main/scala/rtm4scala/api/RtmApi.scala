@@ -24,7 +24,11 @@ import collection.SortedMap
 import net.liftweb.common._
 import org.apache.commons.codec.digest.DigestUtils
 
-class RtmApi(val apiKey: String, val apiSecret: String) extends Logger {
+trait RtmApi {
+	def makeRequest[T](method: String, values: SortedMap[String, Object])(block: Seq[xml.Elem] => Box[T]): Box[T]
+}
+
+class RtmCaller(val apiKey: String, val apiSecret: String) extends Logger with RtmApi {
 	val endpoint = :/("api.rememberthemilk.com") / "services" / "rest"
 	
 	val http = new Http

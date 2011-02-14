@@ -21,9 +21,14 @@ package rtm4scala
 
 import rtm4scala._, rtm._, api._
 
-class Rtm(val sharedSecret: String, val apiKey: String) {
-	private val api:RtmApi = new RtmApi(sharedSecret, apiKey)
-	val test = new Test(api)
-	val tasks = new Tasks(api)
-	val timelines = new Timelines(api)
+trait RtmMethods {
+	val api:RtmApi
+	
+	val test = new Test(api:RtmApi)
+	val tasks = new Tasks(api:RtmApi)
+	val timelines = new Timelines(api:RtmApi)
+}
+
+class Rtm(val sharedSecret: String, val apiKey: String) extends RtmMethods {
+	lazy val api = new RtmCaller(sharedSecret, apiKey)
 }
